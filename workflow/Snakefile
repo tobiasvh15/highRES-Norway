@@ -19,15 +19,15 @@ import pathlib
 
 import pandas as pd
 
-inputyears = ["1995", "2010"]
+inputyears = ["2010"]
 
-values = ["High", "Low"]
+values = ["None"]
 
-solars = ["High", "Low"]
+solars = ["Low"]
 
-spatials = ["grid", "region"]
+spatials = ["region"]
 
-cutoffs_wind = [0, 0.15]
+cutoffs_wind = [0.15]
 
 scenarios = (
     pd.DataFrame(itertools.product(values, repeat=3))
@@ -38,9 +38,10 @@ scenarios = (
             2: "samis",
         }
     )
-    .assign(neighs="Low")
-    .T.assign(nothing="None", nowind="High")
-    .T.reset_index(drop=True)
+    .assign(neighs="None")
+    #.T.assign(nothing="None", nowind="High")
+    #.T
+    .reset_index(drop=True)
 )
 
 
