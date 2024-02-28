@@ -3,7 +3,6 @@
 # --use-conda --cluster-cancel scancel --keep-going -j unlimited
 
 # region:
-# region:
 # snakemake --resources mem_mb=700000 --slurm --default-resources \
 # slurm_account=ec85 runtime=30 mem_mb_per_cpu=1100 cpus_per_task=4 \
 # --use-conda --cluster-cancel scancel --keep-going -j unlimited
@@ -39,8 +38,8 @@ scenarios = (
         }
     )
     .assign(neighs="None")
-    #.T.assign(nothing="None", nowind="High")
-    #.T
+    # .T.assign(nothing="None", nowind="High")
+    # .T
     .reset_index(drop=True)
 )
 
@@ -163,12 +162,14 @@ localrules:
     build_vre_parquet,
     build_vre_csv,
     compress_vre_gdx,
-    compress_hydrores_inflow
+    compress_hydrores_inflow,
+    convert_results_db_parquet,
+
 
 rule all:
     input:
         expand(
-            modelpath / "results.gdx",
+            modelpath / "results.db.compressed",
             zip,
             year=years,
             natur=naturs,
@@ -498,13 +499,15 @@ rule build_hydrores_inflow:
             "Index='(1,2,3)' Value='(4)' UseHeader=True StoreZero=True"
         )
 
+
 rule compress_hydrores_inflow:
     input:
-        rules.build_hydrores_inflow.output.inflowgdx
+        rules.build_hydrores_inflow.output.inflowgdx,
     output:
-        compressdone=touch(modelpath / "hydrores_inflow_gdx.compressed")
+        compressdone=touch(modelpathyearonly / "hydrores_inflow_gdx.compressed"),
     shell:
         gamspath + "gdxcopy -V7C -Replace {input}"
+
 
 rule link_hydrores_inflow:
     input:
@@ -529,25 +532,28 @@ rule build_vre_file:
             " > {output[vrefile]}"
         )
 
+
 rule build_vre_parquet:
     input:
-        rules.build_vre_file.output.vrefile
+        rules.build_vre_file.output.vrefile,
     output:
-        modelpath / "vre_{year}_.parquet"
+        modelpath / "vre_{year}_.parquet",
     conda:
         "envs/build_vre_parquet.yml"
     script:
         "scripts/build_vre_parquet.py"
 
+
 rule build_vre_csv:
     input:
-        modelpath / "vre_{year}_.parquet"
+        modelpath / "vre_{year}_.parquet",
     output:
-        csvgdx=temp(modelpath/"vre_{year}_tmp.csv")
+        csvgdx=temp(modelpath / "vre_{year}_tmp.csv"),
     conda:
         "envs/build_vre_parquet.yml"
     script:
         "scripts/build_vre_csv.py"
+
 
 rule build_vre_gdx:
     input:
@@ -561,13 +567,15 @@ rule build_vre_gdx:
             " Value='(4)' UseHeader=True StoreZero=True"
         )
 
+
 rule compress_vre_gdx:
     input:
-        rules.build_vre_gdx.output.bigvregdx
+        rules.build_vre_gdx.output.bigvregdx,
     output:
-        touch(modelpath / "vre_gdx.compressed")
+        touch(modelpath / "vre_gdx.compressed"),
     shell:
         gamspath + "gdxcopy -V7C -Replace {input}"
+
 
 """ def inputfilelist(wildcards):
     returndict = {}
@@ -616,12 +624,12 @@ rule run_model:
     input:
         modelpath / "highres.gms",
         modelpath / "cplex.opt",
-        shared_code_path + "highres_data_input.gms",
-        shared_code_path + "highres_hydro.gms",
-        shared_code_path + "highres_results.gms",
-        shared_code_path + "highres_storage_setup.gms",
-        shared_code_path + "highres_storage_uc_setup.gms",
-        shared_code_path + "highres_uc_setup.gms",
+        abs_shared_code_path + "highres_data_input.gms",
+        abs_shared_code_path + "highres_hydro.gms",
+        abs_shared_code_path + "highres_results.gms",
+        abs_shared_code_path + "highres_storage_setup.gms",
+        abs_shared_code_path + "highres_storage_uc_setup.gms",
+        abs_shared_code_path + "highres_uc_setup.gms",
         modelpath / "inputs.finished",
         modelpath / "vre_{year}_.gdx",
     params:
@@ -643,10 +651,23 @@ rule convert_results:
     input:
         rules.run_model.output.modelresults,
     output:
-        ensure(protected(modelpath / "results.db"), non_empty=True),
+        resultsdb=ensure(protected(modelpath / "results.db"), non_empty=True),
     shell:
         # TODO platform independence
         gamspath + "gdx2sqlite -i {input} -o {output} -fast"
+
+
+rule convert_results_db_parquet:
+    input:
+        rules.run_model.output.modelresultsdd,
+    output:
+        compressdone=touch(modelpath / "results.db.compressed"),
+    resources:
+        mem_mb=50000,
+    conda:
+        "envs/build_vre_parquet.yml"
+    script:
+        "scripts/convert_results_sqlite_parquet.py"
 
 
 # rule plot_bias_correction:
