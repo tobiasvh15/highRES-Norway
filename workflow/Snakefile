@@ -26,6 +26,9 @@ solars = ["Low"]
 
 spatials = ["region"]
 
+cutoff_values = {"solar": 0.09, "onwind": 0.15, "offwind": 0.20}
+#{"solar": 0.0, "onwind": 0.0, "offwind": 0.0}
+
 cutoffs_wind = [0.15]
 
 scenarios = (
@@ -409,6 +412,7 @@ rule build_weather:
         nodes=12,
     params:
         sharedinputpath=shared_input_path,
+        cutoffs = cutoff_values,
     notebook:
         "notebooks/highRES-Norway_grid.py.ipynb"
 
