@@ -8,8 +8,6 @@ import pandas as pd
 
 inputyears = ["2010"]
 
-values = ["None"]
-
 solars = ["Low"]
 
 spatials = ["region"]
@@ -18,20 +16,7 @@ cutoff_values = {"solar": 0.09, "offwind": 0.20}
 
 cutoffs_wind = [0.15]
 
-scenarios = (
-    pd.DataFrame(itertools.product(values, repeat=3))
-    .rename(
-        columns={
-            0: "naturs",
-            1: "faunas",
-            2: "samis",
-        }
-    )
-    .assign(neighs="None")
-    # .T.assign(nothing="None", nowind="High")
-    # .T
-    .reset_index(drop=True)
-)
+scenarios = pd.DataFrame(index=[0])
 
 
 concatlist = []
@@ -54,8 +39,6 @@ for cutoff_wind in cutoffs_wind:
     concatlist.append(scenarios.assign(cutoffs_wind=cutoff_wind))
 scenarios = pd.concat(concatlist).reset_index(drop=True)
 
-# to run everything, comment the next line out!
-# scenarios = scenarios.query("neighs=='None' or neighs=='Extreme' or solars=='High'")
 
 # drop pointless cutoff grid scenarios
 scenarios = scenarios.drop(
@@ -65,10 +48,6 @@ scenarios = scenarios.drop(
 # droplist = [6,7,2,0,28]
 # scenarios = scenarios.drop(droplist,axis=0)
 
-naturs = scenarios.naturs.to_list()
-faunas = scenarios.faunas.to_list()
-samis = scenarios.samis.to_list()
-neighs = scenarios.neighs.to_list()
 years = scenarios.years.to_list()
 solars = scenarios.solars.to_list()
 spatials = scenarios.spatials.to_list()
@@ -108,7 +87,7 @@ scenarios.to_csv(resultspath / "scenarios.csv", sep="\t")
 
 # Relative path to the built model and built inputs
 yearonlypart = "models/{year}/"
-scenariopart = "{natur}_{fauna}_{sami}_{neigh}_{solar}_{spatial}_{cutoff_wind}/"
+scenariopart = "{solar}_{spatial}_{cutoff_wind}/"
 modelpathyearonly = resultspath / yearonlypart
 modelpath = modelpathyearonly / scenariopart
 allyearpath = resultspath / "models/allyears/"
@@ -149,10 +128,6 @@ rule all:
             modelpath / "results.db.compressed",
             zip,
             year=years,
-            natur=naturs,
-            fauna=faunas,
-            sami=samis,
-            neigh=neighs,
             solar=solars,
             spatial=spatials,
             cutoff_wind=cutoffs_wind,
@@ -300,38 +275,8 @@ def cutoff_needed(wildcards):
     return returndict
 
 
-def myfunc(wildcards):
-    returndict = {}
-    if wildcards.fauna != "None" and wildcards.fauna != "Extreme":
-        returndict[
-            "faunaex"
-        ] = scenario_exclusions_path + "Fauna_{wildcards.fauna}_Exc.zip".format(
-            wildcards=wildcards
-        )
-    if wildcards.natur != "None" and wildcards.natur != "Extreme":
-        returndict[
-            "naturex"
-        ] = scenario_exclusions_path + "Natur_{wildcards.natur}_Exc.zip".format(
-            wildcards=wildcards
-        )
-    if wildcards.neigh != "None" and wildcards.neigh != "Extreme":
-        returndict[
-            "neighex"
-        ] = scenario_exclusions_path + "Neigh_{wildcards.neigh}_Exc.zip".format(
-            wildcards=wildcards
-        )
-    if wildcards.sami != "None" and wildcards.sami != "Extreme":
-        returndict[
-            "samiex"
-        ] = scenario_exclusions_path + "Sami_{wildcards.sami}_Exc.zip".format(
-            wildcards=wildcards
-        )
-    return returndict
-
-
 rule build_weather:
     input:
-        unpack(myfunc),
         unpack(cutoff_needed),
         WDPA1a=shared_input_path / "geodata/onshore/WDPA_Ia_100.tiff",
         WDPA1b=shared_input_path / "geodata/onshore/WDPA_Ib_100.tiff",
@@ -350,10 +295,6 @@ rule build_weather:
         pvlow=scenario_exclusions_path + "PV_Low_Exc.zip",
         windlow=scenario_exclusions_path + "co.geotiff",
         tech=scenario_exclusions_path + "Techn_All_Exc.zip",
-        #faunaex=scenario_exclusions_path + "Fauna_{fauna}_Exc.zip",
-        #naturex=scenario_exclusions_path + "Natur_{natur}_Exc.zip",
-        #neighex=scenario_exclusions_path + "Neigh_{neigh}_Exc.zip",
-        #samiex=scenario_exclusions_path + "Sami_{sami}_Exc.zip",
         changedbiaswind=rules.bias_correct_wind.output.corrected_for_highres,
     output:
         # FIXME the files indreg and cf_exclusion_{solar,windon,windoff} are
@@ -419,13 +360,6 @@ rule build_regions_file:
         regionsdd=modelpath / "_regions.dd",
     script:
         "scripts/build_regions.py"
-
-
-# def build_vre_areas_file_func(wildcards):
-#    returndict = {}
-#    if wildcards.neigh != "Extreme":
-#        returndict['areaswindon'] = rules.build_weather.output.areaswindonshore
-#    return returndict
 
 
 rule build_vre_areas_file:
