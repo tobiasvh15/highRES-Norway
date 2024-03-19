@@ -14,8 +14,7 @@ solars = ["Low"]
 
 spatials = ["region"]
 
-cutoff_values = {"solar": 0.09, "onwind": 0.15, "offwind": 0.20}
-#{"solar": 0.0, "onwind": 0.0, "offwind": 0.0}
+cutoff_values = {"solar": 0.09, "offwind": 0.20}
 
 cutoffs_wind = [0.15]
 
@@ -364,7 +363,6 @@ rule build_weather:
         # to an extra rule and have an input function conditional on the
         # wildcard spatial for that rule
         cf_exclusion_solar=temp(modelpath / "cf_exclusion_solar.tif"),
-        cf_exclusion_windon=temp(modelpath / "cf_exclusion_windon.tif"),
         cf_exclusion_windoff=temp(modelpath / "cf_exclusion_windoff.tif"),
         indreg=temp(modelpath / "indices_region.csv"),
         areassolar=temp(modelpath / "areas_norway_grid_solar.csv"),
