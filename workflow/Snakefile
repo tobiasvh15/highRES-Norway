@@ -8,8 +8,6 @@ import pandas as pd
 
 inputyears = ["2010"]
 
-solars = ["Low"]
-
 spatials = ["region"]
 
 cutoff_values = {"solar": 0.09, "offwind": 0.20}
@@ -22,11 +20,6 @@ scenarios = pd.DataFrame(index=[0])
 concatlist = []
 for year in inputyears:
     concatlist.append(scenarios.assign(years=year))
-scenarios = pd.concat(concatlist).reset_index(drop=True)
-
-concatlist = []
-for solar in solars:
-    concatlist.append(scenarios.assign(solars=solar))
 scenarios = pd.concat(concatlist).reset_index(drop=True)
 
 concatlist = []
@@ -49,7 +42,6 @@ scenarios = scenarios.drop(
 # scenarios = scenarios.drop(droplist,axis=0)
 
 years = scenarios.years.to_list()
-solars = scenarios.solars.to_list()
 spatials = scenarios.spatials.to_list()
 cutoffs_wind = scenarios.cutoffs_wind.to_list()
 
@@ -87,7 +79,7 @@ scenarios.to_csv(resultspath / "scenarios.csv", sep="\t")
 
 # Relative path to the built model and built inputs
 yearonlypart = "models/{year}/"
-scenariopart = "{solar}_{spatial}_{cutoff_wind}/"
+scenariopart = "{spatial}_{cutoff_wind}/"
 modelpathyearonly = resultspath / yearonlypart
 modelpath = modelpathyearonly / scenariopart
 allyearpath = resultspath / "models/allyears/"
@@ -128,7 +120,6 @@ rule all:
             modelpath / "results.db.compressed",
             zip,
             year=years,
-            solar=solars,
             spatial=spatials,
             cutoff_wind=cutoffs_wind,
         ),
@@ -194,7 +185,7 @@ rule build_technoeconomic_inputs:
     input:
         "resources/zones.csv",
         "resources/gb_ext_scenarios.xls",
-        "resources/highres_gb_ext_database_{solar}.ods",
+        "resources/highres_gb_ext_database_Low.ods",
         europecountriescsvlocation="resources/europe_countries.csv",
         europedemandcsvlocation="resources/europe_demand_2006-2015.csv",
         data2dd="workflow/scripts/data2dd_funcs.py",
