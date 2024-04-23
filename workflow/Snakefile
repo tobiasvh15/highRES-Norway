@@ -200,7 +200,7 @@ rule extract_wind_cap2area:
 
 rule ensure_gams_template:
     input:
-        "resources/highresraw.gms",
+        "resources/highres.gms",
     output:
         gamsfile=ensure(resultspath / "highres.gms", sha256=gamsfilesha256),
     run:
