@@ -6,13 +6,13 @@ import pathlib
 
 import pandas as pd
 
-inputyears = ["2010"]
+inputyears = [config["inputs"]["year"]]
 
-spatials = ["region"]
+spatials = [config["inputs"]["spatial_res"]]
 
-cutoff_values = {"solar": 0.09, "offwind": 0.20}
+cutoff_values = {"solar": config["inputs"]["cutoff_solar"], "offwind": config["inputs"]["cutoff_offwind"]}
 
-cutoffs_wind = [0.15]
+cutoffs_wind = [config["inputs"]["cutoff_onwind"]]
 
 scenarios = pd.DataFrame(index=[0])
 
@@ -101,7 +101,7 @@ localrules:
 rule all:
     input:
         expand(
-            modelpath / "results.db.compressed",
+            modelpath / config["target"],
             zip,
             year=years,
             spatial=spatials,
