@@ -41,6 +41,8 @@ $offdigit
 * fx_caps_to = file containing capacities to fix the system to
 
 * outname = output name of GDX file
+* hydro_res_min = minimum reservoir level
+* transmission_fom_percent = assume 2% fom costs for transmission
 
 $setglobal datafolderpath "."
 * $setglobal codefolderpath "4_model_code_shared"
@@ -79,6 +81,9 @@ $setglobal fx_caps_to ""
 
 $setglobal outname "results"
 * $setglobal co2intensity "2"
+* $setglobal hydro_res_min "0.2"
+
+* $setglobal transmission_fom_percent "0.02"
 
 
 **************************************************
@@ -520,9 +525,10 @@ eq_costs_trans_capex(z) .. costs_trans_capex(z) =E=
 sum(trans_links(z,z_alias,trans),var_trans_pcap(z,z_alias,trans)*trans_links_dist(z,z_alias,trans)*trans_line_capex(trans))
 +sum(trans_links(z,z_alias,trans),var_trans_pcap(z,z_alias,trans)$(trans_links_dist(z,z_alias,trans))*trans_sub_capex(trans)*2);
 
-* assume 2% fom costs for transmission
 
-eq_costs_trans_fom(z) .. costs_trans_fom(z) =E= costs_trans_capex(z)*0.02;
+eq_costs_trans_fom(z) ..
+
+    costs_trans_fom(z) =E= costs_trans_capex(z)* %transmission_fom_percent%;
 
 
 

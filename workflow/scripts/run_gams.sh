@@ -13,4 +13,6 @@ logOption=2 gdxCompress=1 \
 --weather_yr "${snakemake_wildcards[year]}" \
 --dem_yr "${snakemake_wildcards[year]}" \
 --codefolderpath "${snakemake_params[sharedcodepath]}" \
---co2intensity "${snakemake_params[co2intensity]}"
+--co2intensity "${snakemake_params[co2intensity]}" \
+--hydro_res_min "${snakemake_params[hydroresmin]}" \
+--transmission_fom_percent "${snakemake_params[transmission_fom_percent]}"

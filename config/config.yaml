@@ -21,3 +21,5 @@ inputs:
   cutoff_solar: 0.09
   cutoff_onwind: 0.15
   cutoff_offwind: 0.20
+  hydro_res_min: 0.2
+  transmission_fom_percent: 0.02

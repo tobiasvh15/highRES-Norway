@@ -60,33 +60,15 @@ var_tot_hydro_ecap_z.FX(z,hydro_res)$(gen_lim_ecap_z(z,hydro_res,'FX'))=gen_lim_
 *hydro_lim(z,hydro_res) = ((sum(lt,gen_lim_pcap_z(z,hydro_res,lt))+sum(lt,gen_exist_pcap_z(z,hydro_res,lt)))>0.);
 gen_lim(z,hydro_res)= ((sum(lt,gen_lim_pcap_z(z,hydro_res,lt))+sum(lt,gen_exist_pcap_z(z,hydro_res,lt)))>0.);
 
-sets
-hfirst(h) first hour
-hlast(h) last hour
-;
-
-hfirst(h) = yes$(ord(h) eq 1) ;
-hlast(h) = yes$(ord(h) eq card (h));
-
-* how full are the reservoirs at the start and end (%)
-
-scalar hydro_res_initial_fill /0.8/;
-
-* minimum reservoir level
-
-scalar hydro_res_min /0.5/;
 
 * set hydro inflow
 
 var_hydro_in.FX(h,z,hydro_res)$(gen_lim(z,hydro_res))=hydro_inflow(h,z,hydro_res)/MWtoGW;
 
-* set minimum reservoir level to be 50%
-
-var_hydro_level.LO(h,z,hydro_res)$(gen_lim(z,hydro_res))=var_exist_hydro_ecap_z.L(z,hydro_res)*hydro_res_min;
-
-* set final reservoir level equal to starting level
-
-var_hydro_level.LO(hlast,z,hydro_res)$(gen_lim(z,hydro_res))=var_exist_hydro_ecap_z.L(z,hydro_res)*hydro_res_initial_fill;
+* set minimum reservoir level
+var_hydro_level.LO(h,z,hydro_res)$(gen_lim(z,hydro_res))=
+    
+    var_exist_hydro_ecap_z.L(z,hydro_res)*%hydro_res_min%;
 
 equations
 eq_hydro_balance
@@ -119,16 +101,28 @@ eq_tot_hydro_ecap(hydro_res) .. sum(z,var_tot_hydro_ecap_z(z,hydro_res)) =E= var
 
 * no efficiency needed here because inflow is calibrated to annual generation figures
 
+
 eq_hydro_balance(h,gen_lim(z,hydro_res)) ..
 
-var_hydro_level(h,z,hydro_res) =E=
+    var_hydro_level(h,z,hydro_res) =E=
 
-var_hydro_level(h-1,z,hydro_res) + var_hydro_in(h,z,hydro_res) - var_gen(h,z,hydro_res) - var_hydro_spill(h,z,hydro_res)
+    var_hydro_level(h--1,z,hydro_res) + var_hydro_in(h,z,hydro_res)
 
-+ (var_exist_hydro_ecap_z(z,hydro_res)*hydro_res_initial_fill)$hfirst(h) ;
+    - var_gen(h,z,hydro_res) - var_hydro_spill(h,z,hydro_res) ;
 
-eq_hydro_level(h,gen_lim(z,hydro_res)) .. var_hydro_level(h,z,hydro_res) =L= var_tot_hydro_ecap_z(z,hydro_res);
 
-eq_hydro_gen_max(h,gen_lim(z,hydro_res)) .. var_gen(h,z,hydro_res) =L= var_tot_pcap_z(z,hydro_res)*gen_af(hydro_res) ;
+eq_hydro_level(h,gen_lim(z,hydro_res)) ..
 
-*eq_hydro_gen_min(h,gen_lim(z,hydro_res))$(ord(h)>1) .. var_gen(h,z,hydro_res) + var_hydro_spill(h,z,hydro_res) =G= gen_mingen(hydro_res)*var_tot_pcap_z(z,hydro_res);
+    var_hydro_level(h,z,hydro_res) =L= var_tot_hydro_ecap_z(z,hydro_res);
+
+
+eq_hydro_gen_max(h,gen_lim(z,hydro_res)) ..
+    
+    var_gen(h,z,hydro_res) =L= var_tot_pcap_z(z,hydro_res)*gen_af(hydro_res) ;
+
+
+* eq_hydro_gen_min(h,gen_lim(z,hydro_res))$(ord(h)>1) .. 
+
+*     var_gen(h,z,hydro_res) + var_hydro_spill(h,z,hydro_res) 
+    
+*     =G= gen_mingen(hydro_res)*var_tot_pcap_z(z,hydro_res);

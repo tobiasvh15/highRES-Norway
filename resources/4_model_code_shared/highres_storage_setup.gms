@@ -183,19 +183,17 @@ $offtext
 
 *set store_uc_lin(s) /H2-Tanks-168GT/;
 
-
-set hfirst(h),hlast(h);
-hfirst(h) = yes$(ord(h) eq 1) ;
-hlast(h) = yes$(ord(h) eq card(h));
-
 * right now there is no ramp for storage
-
 eq_store_balance(h,s_lim(z,s)) ..
 
-var_store_level(h,z,s) =E= var_store_level(h-1,z,s)*(1-store_loss_per_hr(s)) + var_store(h,z,s)*store_eff_in(s) - var_store_gen(h,z,s)*round(1/store_eff_out(s),3)
+    var_store_level(h,z,s)
+    
+    =E= var_store_level(h--1,z,s)*(1-store_loss_per_hr(s))
 
-+ (var_tot_store_ecap_z(z,s)$(s_lim(z,s))*0.5)$hfirst(h)
-;
+    + var_store(h,z,s)*store_eff_in(s) 
+
+    - var_store_gen(h,z,s)*round(1/store_eff_out(s),3);
+
 
 *equations eq_test;
 
@@ -221,39 +219,34 @@ eq_store_charge_max(s_lim(z,s),h) .. var_store(h,z,s) =L= var_tot_store_pcap_z(z
 
 *eq_store_charge_max2(s_lim(z,s),h)$(store_uc_lin(s)) .. var_store(h,z,s)*20 =L= var_tot_store_pcap_z(z,s)*store_af(s) ;
 
-equation eq_store_end_level;
-
-eq_store_end_level(h,z,s)$(s_lim(z,s) and hlast(h)) .. var_store_level(h,z,s) =E= var_tot_store_ecap_z(z,s)*0.5 ;
-
-
 
 $ifThen "%UC%" == ON
 
-Positive variables
-var_store_res(h,z,s)
-$IF "%f_res%" == ON var_store_f_res(h,z,s)
-;
+    Positive variables
+    var_store_res(h,z,s)
+    $IF "%f_res%" == ON var_store_f_res(h,z,s)
+    ;
 
-* max1 covers the more detailed part (should be removed)
-* line 73 at stoage_uc_setup.gms contains the equivalent to this but for UC technologies
+    * max1 covers the more detailed part (should be removed)
+    * line 73 at stoage_uc_setup.gms contains the equivalent to this but for UC technologies
 
-* s_lim limits which zone can have which storage technology
-eq_store_gen_max1(s_lim(z,s),h)$(not store_uc_lin(s)) ..
+    * s_lim limits which zone can have which storage technology
+    eq_store_gen_max1(s_lim(z,s),h)$(not store_uc_lin(s)) ..
 
-var_store_gen(h,z,s)+var_store_res(h,z,s)
+    var_store_gen(h,z,s)+var_store_res(h,z,s)
 
-$IF "%f_res%" == ON +var_store_f_res(h,z,s)
+    $IF "%f_res%" == ON +var_store_f_res(h,z,s)
 
-=L= var_tot_store_pcap_z(z,s)*store_af(s) ;
-*var_store_gen(h,z,s)+var_store_f_res(h,z,s)=L= var_tot_store_pcap_z(z,s)*store_af(s);
+    =L= var_tot_store_pcap_z(z,s)*store_af(s) ;
+    *var_store_gen(h,z,s)+var_store_f_res(h,z,s)=L= var_tot_store_pcap_z(z,s)*store_af(s);
 
-* max2 does cover the European part of the model
-eq_store_gen_max2(s_lim(z,s),h) .. var_store_gen(h,z,s) =L= var_tot_store_pcap_z(z,s)*store_af(s) ;
+    * max2 does cover the European part of the model
+    eq_store_gen_max2(s_lim(z,s),h) .. var_store_gen(h,z,s) =L= var_tot_store_pcap_z(z,s)*store_af(s) ;
 
 
 $else
 
-eq_store_gen_max1(s_lim(z,s),h) .. var_store_gen(h,z,s) =L= var_tot_store_pcap_z(z,s)*store_af(s) ;
+    eq_store_gen_max1(s_lim(z,s),h) .. var_store_gen(h,z,s) =L= var_tot_store_pcap_z(z,s)*store_af(s) ;
 
 $endIf
 
