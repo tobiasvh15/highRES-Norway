@@ -78,14 +78,6 @@ cutoffs_wind = scenarios.cutoffs_wind.to_list()
 # in grams per kWh
 co2target = round(0, 1)
 
-# gamsfilesha256 = "d8e033699604d4474a1c9db59140749509f30383dee532c1e85165617620776b"
-# gamsfilesha256 = "af4a97e52ff41b137a24fb517b03e0e8268d879b01c7aefd7cae3074467ebad1"
-# gamsfilesha256 = "b8ff95b0bc41fa7bd18ff192eac69b54ead25d72a851656c0d9e8fe41ca50177"
-# gamsfilesha256 = "9b1b86c582b18822fcf9c65045f9c68605e951957cd934cc1713f8cf00a5f375"
-# gamsfilesha256 = "7c58219c0ab4320c806c0460ebba547c10838313c6a1f10f6e6640aab90a4838"
-# gamsfilesha256 = "9cced6b80dad705f6963e4dee1c48af4b8170d42444bb269b049ea8627d6c0e5"
-# gamsfilesha256 = "686cc7b751384f1f0401289c1da84f8454221b7eb146bf1b65eb5dae2d08c22a"
-# gamsfilesha256 = "21a42507bb4c2b9be551a4f35012d1e6645ea3ab401feaee7467c1af88b25c00"
 gamsfilesha256 = "f0fae4899977927456100fc83d15f28e29694ca56202029f7d824ec861c86123"
 
 CORRECTOR_YEAR = 2019
@@ -99,10 +91,7 @@ gamspath = config["paths"]["gams"]
 shared_input_path = pathlib.Path(config["paths"]["shared_input"])
 
 # Relative path the model code that is the same across all versions
-# shared_code_path = "resources/4_model_code_shared/"
 abs_shared_code_path = config["paths"]["abs_shared_code"]
-# abs_shared_code_path = workflow.source_path("../resources/4_model_code_shared/")
-# TODO: Get this to work, maybe with Pathlib
 
 # Absolute path to the con directory:
 abs_con_path = config["paths"]["abs_con"]
@@ -111,11 +100,8 @@ abs_con_path = config["paths"]["abs_con"]
 scenario_exclusions_path = "resources/scenario_exclusions/"
 
 # Relative path to the results
-# TODO: Vetle: --directory, flag for å sette results directory?
-# resultspath = "results/"
 resultspath = pathlib.Path(config["paths"]["resultsdir"])
 pathlib.Path(resultspath).mkdir(parents=True, exist_ok=True)
-# "/cluster/work/projects/ec85/joint-wind/model-aggregated/resultsoff/"
 
 # Write scenarios to file, so results analysis script can check if they are all
 # available.
@@ -212,7 +198,6 @@ rule build_gams:
 rule build_cplex_opt:
     input:
         "resources/cplex.opt",
-        #ancient("resources/cplex.opt"), # TODO: What does this line do?
     output:
         modelpath / "cplex.opt",
     run:
@@ -361,8 +346,6 @@ rule build_weather:
         / ("geodata/offshore/BOTTOM_MOUNTED_EUROPE_NUTS0" "_NORWAY_NUTS3.geojson"),
         weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
         corine=shared_input_path / "geodata/onshore/corine.tif",
-        #cap2area="resources/highres_gb_ext_database_{solar}.ods",
-        #cap2area=rules.extract_wind_cap2area.output.windcap2area,
         cap2area=ancient("resources/windcap2area"),
         wind_parks="resources/bias/nve_wind_parks.geojson",
         pvlow=scenario_exclusions_path + "PV_Low_Exc.zip",
@@ -373,7 +356,6 @@ rule build_weather:
         #neighex=scenario_exclusions_path + "Neigh_{neigh}_Exc.zip",
         #samiex=scenario_exclusions_path + "Sami_{sami}_Exc.zip",
         changedbiaswind=rules.bias_correct_wind.output.corrected_for_highres,
-        #cutoffexclusiontiff=rules.build_cutoff.output.exclusiontiff
     output:
         # FIXME the files indreg and cf_exclusion_{solar,windon,windoff} are
         # only necessary under some conditions currently when those are not met,
@@ -435,7 +417,6 @@ rule build_regions_file:
         "workflow/scripts/build_regions.py",
         unpack(regionsonlyforgrid),
         zonescsv="resources/zones.csv",
-        #rules.build_weather.output.indreg,
     output:
         regionsdd=modelpath / "_regions.dd",
     script:
@@ -451,7 +432,6 @@ rule build_regions_file:
 
 rule build_vre_areas_file:
     input:
-        #        unpack(build_vre_areas_file_func),
         areashydro=rules.build_hydro_areas.output.areashydro,
         areassolar=rules.build_weather.output.areassolar,
         areaswindon=rules.build_weather.output.areaswindonshore,
@@ -464,21 +444,6 @@ rule build_vre_areas_file:
         areassorted=temp(modelpath / "vre_areas_sorted.txt"),
     script:
         "scripts/build_vre_areas_file.py"
-
-
-# shell:
-#     # TODO platform independence
-#     (
-#         "cat {input[areashydro]} {input[areassolar]} {input[areaswindon]} "
-#         "{input[areaswindoff]} | sort -g | cat {input[vreareaheader]} - "
-#         "{input[genericfooter]} > {output[0]}"
-#     )
-# """ run:
-#     import shutil
-#     with open('unsorted.txt','wb') as wfd:
-#         for f in [input[areashydro],input[areassolar],input[areaswindon],input[areaswindoff]]:
-#             with open(f,'rb') as fd:
-#                 shutil.copyfileobj(fd, wfd) """
 
 
 rule build_hydrores_inflow:
@@ -570,23 +535,6 @@ rule compress_vre_gdx:
         gamspath + "gdxcopy -V7C -Replace {input}"
 
 
-""" def inputfilelist(wildcards):
-    returndict = {}
-    returndict['regionsfile'] = modelpath / "_regions.dd"
-    returndict['zonesfile'] = modelpath / "zones.dd"
-    returndict['temporalfile'] = modelpath / "{year}_temporal.dd"
-    returndict['vreareafile'] = modelpath / "vre_areas_{year}_.dd"
-    returndict['demandfile'] = modelpath / "BASE_demand_{year}.dd"
-    returndict['capfacfilecompressed'] = modelpath / "vre_gdx.compressed"
-    returndict['capfacfile'] = modelpath / "vre_{year}_.gdx"
-    returndict['hydroresinflowfile'] = modelpath / "hydro_res_inflow_{year}.gdx"
-    returndict['co2budgetfile'] = modelpath / "BASE_co2_budget.dd"
-    returndict['genparamsfile'] = modelpath / "BASE_gen.dd"
-    returndict['storeparamsfile'] = modelpath / "BASE_store.dd"
-    returndict['transparamsfile'] = modelpath / "trans.dd"
-    return returndict """
-
-
 rule build_inputs:
     input:
         modelpath / "highres.gms",
@@ -661,22 +609,3 @@ rule convert_results_db_parquet:
         "envs/build_vre_parquet.yml"
     script:
         "scripts/convert_results_sqlite_parquet.py"
-
-
-# rule plot_bias_correction:
-#     input:
-#         era5=f"data/input/europe-era5_{CORRECTOR_YEAR}.nc",
-#         production="data/input/TimeSeries_UTC_kWh_2022_all.csv",
-#         europeshape="data/input/Onshore_EU-NUTS0_NO-NUTS3_UK-NG.geojson",
-#         wind_parks="data/input/nve_wind_parks.geojson",
-#         uncorrected_cap_factors=f"data/output/uncorrected_wind_capacity_factors_{CORRECTOR_YEAR}.nc",
-#         corrected_cap_factors=f"data/output/corrected_wind_capacity_factors_{CORRECTOR_YEAR}.nc",
-#         corrected_cap_factors_simple=f"data/output/corrected_simple_wind_capacity_factors_{CORRECTOR_YEAR}.nc",
-#     output:
-#         directory("data/output/plots"),
-#     params:
-#         corrector_year=CORRECTOR_YEAR,
-#     conda:
-#         "envs/environment.yaml"
-#     script:
-#         "scripts/plot_bias_correction.py"
