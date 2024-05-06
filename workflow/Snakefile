@@ -241,6 +241,8 @@ rule build_weather:
         euroshape=shared_input_path / "geodata/onshore/shapes/NO-NUTS3.geojson",
         eurooffshoreshape=shared_input_path
         / ("geodata/offshore/BOTTOM_MOUNTED_EUROPE_NUTS0" "_NORWAY_NUTS3.geojson"),
+        eurooffshorefloatingshape=shared_input_path
+        / ("geodata/offshore/FLOATING_EUROPE_NUTS0_NORWAY_NUTS3.geojson"),
         weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
         corine=shared_input_path / "geodata/onshore/corine.tif",
         cap2area=ancient("resources/windcap2area"),
@@ -258,10 +260,16 @@ rule build_weather:
         # wildcard spatial for that rule
         cf_exclusion_solar=temp(modelpath / "cf_exclusion_solar.tif"),
         cf_exclusion_windoff=temp(modelpath / "cf_exclusion_windoff.tif"),
+        cf_exclusion_windoff_floating=temp(
+            modelpath / "cf_exclusion_windoff_floating.tif"
+        ),
         indreg=temp(modelpath / "indices_region.csv"),
         areassolar=temp(modelpath / "areas_norway_grid_solar.csv"),
         areaswindonshore=temp(modelpath / "areas_norway_grid_wind_onshore.csv"),
         areaswindoffshore=temp(modelpath / "areas_norway_grid_wind_offshore.csv"),
+        areaswindoffshorefloating=temp(
+            modelpath / "areas_norway_grid_wind_offshore_floating.csv"
+        ),
         changedbiaswindcsv=temp(modelpath / "capacity-factors_wind_norway-g_{year}.csv"),
         capfacfile=temp(modelpath / "capacity-factors_solar_norway-g_{year}.csv"),
     conda:
@@ -322,6 +330,7 @@ rule build_vre_areas_file:
         areassolar=rules.build_weather.output.areassolar,
         areaswindon=rules.build_weather.output.areaswindonshore,
         areaswindoff=rules.build_weather.output.areaswindoffshore,
+        areaswindofffloating=rules.build_weather.output.areaswindoffshorefloating,
         vreareaheader="resources/vre_areas_header.txt",
         genericfooter="resources/generic_footer.txt",
     output:
