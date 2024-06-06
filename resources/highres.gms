@@ -149,17 +149,17 @@ s_discharge_cap = s_discharge_cap/MWtoGW;
 s_charge_cap = s_charge_cap/MWtoGW;
 
 Parameter par_vehicles(z) "number of vehicles per zone" /
-$include test-data\vehicles_zones.tsv
+$include ev_data\vehicles_zones.tsv
 /;
 
 Parameter par_driving_demand(h,z) "electricity used while driving per car [MWh]" /
-$include test-data\demand_driving.tsv
+$include ev_data\demand_driving.tsv
 /;
 
 par_driving_demand(h,z) = par_driving_demand(h,z)/MWtoGW;
 
 Parameter par_connected_vehicles(h) "fraction of cars connected to the grid"  /
-$include test-data\connected_vehicles.tsv
+$include ev_data\connected_vehicles.tsv
 /;
 
 Positive Variables
