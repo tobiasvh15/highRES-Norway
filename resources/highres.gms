@@ -136,12 +136,9 @@ emis_price
 ;
 
 $ifThen "%EV_flex%" == ON
-*TODO integrate currently hardcoded scalars into the workflow
+
 Scalars
-    s_store_cap "battery capacity per vehicle [MWh]" /0.051/
-    s_discharge_cap "maximum discharging speed per vehicle [MW]" /0.100/
-    s_charge_cap "maximum charging speed per vehicle [MW]" /0.100/
-    s_charge_discharge_eff "charging and discharging efficiency" /0.95/
+$include ev_data/ev_scalars.tsv
 ;
 
 s_store_cap = s_store_cap/MWtoGW;
