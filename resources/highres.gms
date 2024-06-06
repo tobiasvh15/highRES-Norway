@@ -41,7 +41,7 @@ $offdigit
 * fx_caps_to = file containing capacities to fix the system to
 
 * EV (ON/OFF) = whether to include the electric vehicle charging module
-* EV_flex (ON/OFF) = whether flexible electric vehicle charging is modelled
+* EV_flex (%) = percentage of electric vehicles modelled as flexible
 
 * outname = output name of GDX file
 * hydro_res_min = minimum reservoir level
@@ -84,7 +84,7 @@ $setglobal fx_caps_to ""
 
 $setglobal EV "ON"
 
-$IF "%EV%" == "ON" $setglobal EV_flex "ON"
+$IF "%EV%" == "ON" $setglobal EV_flex "100"
 
 $setglobal outname "results"
 * $setglobal co2intensity "2"
@@ -570,19 +570,13 @@ $endIf
 
 $IF "%pen_gen%" == ON +var_pgen(h,z)
 
-$IF "%EV%" == "OFF" $GOTO ev_off
-$ifThen "%EV_flex%" == ON
+$ifThen "%EV%" == ON
 
 + var_ev_discharge(h,z)
 - var_ev_charge(h,z)
-- (par_ev_charging(h)*par_vehicles(z)*(1-flexible_fraction))/s_charge_discharge_eff
-
-$else
-
-- (par_ev_charging(h)*par_vehicles(z))/s_charge_discharge_eff
+- (par_ev_charging(h)*par_vehicles(z)*(1-s_EV_flex))/s_charge_discharge_eff
 
 $endIf
-$label ev_off
 
 =E= demand(z,h);
 
