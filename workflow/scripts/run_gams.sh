@@ -14,6 +14,9 @@ logOption=2 gdxCompress=1 \
 --dem_yr "${snakemake_wildcards[year]}" \
 --codefolderpath "${snakemake_params[sharedcodepath]}" \
 --co2intensity "${snakemake_params[co2intensity]}" \
+--EV "${snakemake_params[EV]}" \
+--EV_flex "${snakemake_params[EV_flex]}" \
+--V2G "${snakemake_params[V2G]}" \
 --hydro_res_min "${snakemake_params[hydroresmin]}" \
 --transmission_fom_percent "${snakemake_params[transmission_fom_percent]}" \
 --total_imports "${snakemake_params[total_imports]}"

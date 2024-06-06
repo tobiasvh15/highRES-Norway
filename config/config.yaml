@@ -23,4 +23,7 @@ inputs:
   cutoff_offwind: 0.20
   hydro_res_min: 0.2
   transmission_fom_percent: 0.02
+  EV: "ON"
+  EV_flex: "100"
+  V2G: "ON"
   total_imports: 0
