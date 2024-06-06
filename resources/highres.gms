@@ -42,6 +42,7 @@ $offdigit
 
 * EV (ON/OFF) = whether to include the electric vehicle charging module
 * EV_flex (%) = percentage of electric vehicles modelled as flexible
+* V2G (ON/OFF) = whether flexible EV charging allows for vehicle to grid (V2G)
 
 * outname = output name of GDX file
 * hydro_res_min = minimum reservoir level
@@ -84,7 +85,13 @@ $setglobal fx_caps_to ""
 
 $setglobal EV "ON"
 
-$IF "%EV%" == "ON" $setglobal EV_flex "100"
+$ifThen "%EV%" == "ON"
+
+$setglobal EV_flex "100"
+
+$setglobal V2G "ON"
+
+$endif
 
 $setglobal outname "results"
 * $setglobal co2intensity "2"
@@ -138,7 +145,7 @@ emis_price
 /0./
 ;
 
-$IF "%EV%" == "ON" $INCLUDE highres_ev.gms
+$IF "%EV%" == ON $INCLUDE highres_ev.gms
 
 
 demand(z,h)=demand(z,h)/MWtoGW;

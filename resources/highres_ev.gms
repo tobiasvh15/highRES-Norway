@@ -10,6 +10,10 @@ s_store_cap = s_store_cap/MWtoGW;
 s_discharge_cap = s_discharge_cap/MWtoGW;
 s_charge_cap = s_charge_cap/MWtoGW;
 
+$ifThen "%V2G%" == OFF
+s_discharge_cap = 0;
+$endif
+
 Parameter par_vehicles(z) "number of vehicles per zone" /
 $include %datafolderpath%/ev_data/vehicles_zones.tsv
 /;
