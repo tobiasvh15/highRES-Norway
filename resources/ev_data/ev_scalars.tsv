@@ -1,10 +1,6 @@
-s_store_cap /0.051/
-*s_discharge_cap /0.100/
-s_discharge_cap /0.022/
-*s_charge_cap /0.100/
-s_charge_cap /0.022/
+s_store_cap "battery capacity per vehicle [MWh]" /0.051/
+s_discharge_cap "maximum discharging speed per vehicle [MW]" /0.022/
+s_charge_cap "maximum charging speed per vehicle [MW]" /0.022/
 s_charge_discharge_eff /0.95/
 s_soc_min /0.2/
-*s_soc_min /0/
 s_soc_max /0.8/
-*s_soc_max /1/
