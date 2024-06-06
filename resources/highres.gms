@@ -83,12 +83,11 @@ $set pen_gen "ON"
 
 $setglobal fx_caps_to ""
 
+* Electric vehicle switches
+* Caution: when setting the EV switch to "ON" demand from electric vehicles should not be included with the demand input
 $setglobal EV "ON"
-
 $ifThen "%EV%" == "ON"
-
 $setglobal EV_flex "100"
-
 $setglobal V2G "ON"
 
 $endif
