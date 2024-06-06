@@ -141,6 +141,7 @@ Scalars
     s_store_cap "battery capacity per vehicle [MWh]" /0.051/
     s_discharge_cap "maximum discharging speed per vehicle [MW]" /0.100/
     s_charge_cap "maximum charging speed per vehicle [MW]" /0.100/
+    s_charge_discharge_eff "charging and discharging efficiency" /0.95/
 ;
 
 Parameter par_vehicles(z) "number of vehicles per zone" /
@@ -167,8 +168,8 @@ Equations
     eq_discharge_limit
     eq_charge_limit
 ;
-*TODO add efficiencies
-eq_energy_stored(h,z).. var_ev_energy_stored(h,z) =E= var_ev_energy_stored(h-1,z) + var_ev_charge(h,z) - var_ev_discharge(h,z) - par_vehicles(z)*par_driving_demand(h,z);
+
+eq_energy_stored(h,z).. var_ev_energy_stored(h,z) =E= var_ev_energy_stored(h-1,z) + var_ev_charge(h,z)*s_charge_discharge_eff - var_ev_discharge(h,z)/s_charge_discharge_eff - par_vehicles(z)*par_driving_demand(h,z);
 
 eq_total_stored_energy_limit(h,z).. var_ev_energy_stored(h,z) =L= s_store_cap*par_vehicles(z);
 
