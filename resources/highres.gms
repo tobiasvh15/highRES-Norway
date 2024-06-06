@@ -183,6 +183,19 @@ eq_discharge_limit(h,z)..  var_ev_discharge(h,z) =L= par_vehicles(z)*s_discharge
 
 eq_charge_limit(h,z)..  var_ev_charge(h,z) =L= par_vehicles(z)*s_charge_cap*par_connected_vehicles(h);
 
+
+$else
+
+Parameter par_vehicles(z) "number of vehicles per zone" /
+$include ev_data\vehicles_zones.tsv
+/;
+
+Parameter par_ev_charging(h) "demand for EV charging per vehicle" /
+$include ev_data\demand_ev_charging_MWh.tsv
+/;
+
+par_ev_charging(h) = par_ev_charging(h)/MWtoGW;
+
 $endIf
 
 demand(z,h)=demand(z,h)/MWtoGW;
@@ -614,7 +627,16 @@ $endIf
 
 $IF "%pen_gen%" == ON +var_pgen(h,z)
 
-$IF "%EV_flex%" == ON + var_ev_discharge(h,z) - var_ev_charge(h,z)
+$ifThen "%EV_flex%" == ON
+
++ var_ev_discharge(h,z)
+- var_ev_charge(h,z)
+ 
+$else
+
+- par_ev_charging(h)*par_vehicles(z)
+
+$endIf
 
 =E= demand(z,h);
 
