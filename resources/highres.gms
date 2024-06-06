@@ -146,11 +146,11 @@ s_discharge_cap = s_discharge_cap/MWtoGW;
 s_charge_cap = s_charge_cap/MWtoGW;
 
 Parameter par_vehicles(z) "number of vehicles per zone" /
-$include %datafolderpath%/ev_data\vehicles_zones.tsv
+$include %datafolderpath%/ev_data/vehicles_zones.tsv
 /;
 
 Parameter par_driving_demand(h,z) "electricity used while driving per car [MWh]" /
-$include %datafolderpath%/ev_data\demand_driving.tsv
+$include %datafolderpath%/ev_data/demand_driving_MWh.tsv
 /;
 
 par_driving_demand(h,z) = par_driving_demand(h,z)/MWtoGW;
@@ -182,6 +182,8 @@ eq_charge_limit(h,z)..  var_ev_charge(h,z) =L= par_vehicles(z)*s_charge_cap*par_
 
 
 $else
+
+Scalar s_charge_discharge_eff /0.95/;
 
 Parameter par_vehicles(z) "number of vehicles per zone" /
 $include %datafolderpath%/ev_data/vehicles_zones.tsv
@@ -631,7 +633,7 @@ $ifThen "%EV_flex%" == ON
  
 $else
 
-- par_ev_charging(h)*par_vehicles(z)
+- (par_ev_charging(h)*par_vehicles(z))/s_charge_discharge_eff
 
 $endIf
 
