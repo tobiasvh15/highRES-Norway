@@ -41,6 +41,9 @@ Positive Variables
     var_ev_total_demand
 ;
 
+var_ev_energy_stored.LO(h,z) = s_soc_min*(s_store_cap*par_vehicles(z)*s_EV_flex);
+var_ev_energy_stored.UP(h,z) = s_soc_max*(s_store_cap*par_vehicles(z)*s_EV_flex);
+
 Equations
     eq_energy_stored
     eq_total_stored_energy_limit
