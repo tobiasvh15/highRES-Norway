@@ -40,6 +40,8 @@ $offdigit
 * pen_gen (ON/OFF) = whether value of lost load (VoLL) is modelled
 * fx_caps_to = file containing capacities to fix the system to
 
+* demand_response (ON/OFF) = whether demand response for electric vehicles is modelled
+
 * outname = output name of GDX file
 * hydro_res_min = minimum reservoir level
 * transmission_fom_percent = assume 2% fom costs for transmission
@@ -78,6 +80,8 @@ $setglobal fx_natcap "NO"
 $set pen_gen "ON"
 
 $setglobal fx_caps_to ""
+
+$setglobal demand_response "ON"
 
 $setglobal outname "results"
 * $setglobal co2intensity "2"
@@ -131,6 +135,61 @@ emis_price
 /0./
 ;
 
+$ifThen "%demand_response%" == ON
+*TODO integrate currently hardcoded scalars and parameters into the workflow
+Scalars
+    s_store_cap "battery capacity per vehicle [MWh]" /0.051/
+    s_discharge_cap "maximum discharging speed per vehicle [MW]" /0.100/
+    s_charge_cap "maximum charging speed per vehicle [MW]" /0.100/
+;
+
+Parameter par_vehicles(z)/
+*number of vehicles per zone
+    NO03 290716
+    NO11 290716
+    NO15 290716
+    NO18 290716
+    NO30 290716
+    NO34 290716
+    NO38 290716
+    NO42 290716 
+    NO46 290716
+    NO50 290716
+    NO54 290716
+/;
+
+Parameter par_driving_demand(h) 'electricity used while driving per car'/
+$include test-data\demand_driving.tsv
+/;
+
+Parameter par_connected_vehicles(h) 'fraction of cars connected to the grid'  /
+$include test-data\connected_vehicles.tsv
+/;
+
+Positive Variables
+    var_ev_energy_stored(h,z) 'energy stored in electric vehicle batteries'
+    var_ev_discharge(h,z) 'energy discharged from electric vehicle batteries'
+    var_ev_charge(h,z) 'energy charged to electric vehicle batteries'
+;
+
+Equations
+    eq_discharge_limit
+    eq_charge_limit
+    eq_energy_stored
+    eq_total_stored_energy_limit
+;
+
+eq_discharge_limit(h,z)..  var_ev_discharge(h,z) =L= par_vehicles(z)*s_discharge_cap*par_connected_vehicles(h);
+
+eq_charge_limit(h,z)..  var_ev_charge(h,z) =L= par_vehicles(z)*s_charge_cap*par_connected_vehicles(h);
+
+*TODO add efficiencies
+eq_energy_stored(h,z).. var_ev_energy_stored(h,z) =E= var_ev_energy_stored(h-1,z) + var_ev_charge(h,z) - var_ev_discharge(h,z) - par_vehicles(z)*par_driving_demand(h);
+
+eq_total_stored_energy_limit(h,z).. var_ev_energy_stored(h,z) =L= s_store_cap*par_vehicles(z);
+
+
+$endIf
 
 demand(z,h)=demand(z,h)/MWtoGW;
 gen_cap2area(vre)=gen_cap2area(vre)/MWtoGW;
@@ -560,6 +619,8 @@ $ifThen "%storage%" == ON
 $endIf
 
 $IF "%pen_gen%" == ON +var_pgen(h,z)
+
+$IF "%demand_response%" == ON + var_ev_discharge(h,z) - var_ev_charge(h,z)
 
 =E= demand(z,h);
 
