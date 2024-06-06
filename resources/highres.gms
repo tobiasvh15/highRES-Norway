@@ -136,7 +136,7 @@ emis_price
 ;
 
 $ifThen "%demand_response%" == ON
-*TODO integrate currently hardcoded scalars and parameters into the workflow
+*TODO integrate currently hardcoded scalars into the workflow
 Scalars
     s_store_cap "battery capacity per vehicle [MWh]" /0.051/
     s_discharge_cap "maximum discharging speed per vehicle [MW]" /0.100/
@@ -145,17 +145,7 @@ Scalars
 
 Parameter par_vehicles(z)/
 *number of vehicles per zone
-    NO03 290716
-    NO11 290716
-    NO15 290716
-    NO18 290716
-    NO30 290716
-    NO34 290716
-    NO38 290716
-    NO42 290716 
-    NO46 290716
-    NO50 290716
-    NO54 290716
+$include test-data\vehicles_zones.tsv
 /;
 
 Parameter par_driving_demand(h) 'electricity used while driving per car'/
