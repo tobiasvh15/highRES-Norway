@@ -5,6 +5,15 @@ To run the full workflow, two datapackages are needed they can be downloaded fro
 1. (~80MB compressed, ~300MB uncompressed) <link>.
 2. (~10GB) <link>
 
+## Electric vehicles
+highres_ev.gms includes the GAMS code for the ïmplementation of electricity demand from electric vehicles. The implementation does however go beyond just the electricity demand and allows for the modelling of flexible electric vehicle charging. 
+
+The following switches relating to the electric vehicle implementation are found in the main model code (highres.gms):
+
+1. "EV" to turn the EV module of highRES on or off. If the EV switch is set to on the two following switches also apply.
+2. "EV_flex" is a switch which can take any value from 0 to 100 (percentage) and determines the percentage of cars which participate in flexible charging.
+3. "V2G" is a switch which allows modelling of vehicle to grid (V2G) to be turned on or off. If off no discharging to the grid from the EVs is allowed. If on the percentage of cars participating in flexible charging is also allowed to discharge to the grid.
+
 ## Windows
 1. Clone the repository
 2. Install snakemake
