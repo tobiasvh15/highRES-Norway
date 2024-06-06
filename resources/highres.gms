@@ -40,7 +40,7 @@ $offdigit
 * pen_gen (ON/OFF) = whether value of lost load (VoLL) is modelled
 * fx_caps_to = file containing capacities to fix the system to
 
-* demand_response (ON/OFF) = whether demand response for electric vehicles is modelled
+* EV_flex (ON/OFF) = whether flexible electric vehicle charging is modelled
 
 * outname = output name of GDX file
 * hydro_res_min = minimum reservoir level
@@ -81,7 +81,7 @@ $set pen_gen "ON"
 
 $setglobal fx_caps_to ""
 
-$setglobal demand_response "ON"
+$setglobal EV_flex "ON"
 
 $setglobal outname "results"
 * $setglobal co2intensity "2"
@@ -135,7 +135,7 @@ emis_price
 /0./
 ;
 
-$ifThen "%demand_response%" == ON
+$ifThen "%EV_flex%" == ON
 *TODO integrate currently hardcoded scalars into the workflow
 Scalars
     s_store_cap "battery capacity per vehicle [MWh]" /0.051/
@@ -608,7 +608,7 @@ $endIf
 
 $IF "%pen_gen%" == ON +var_pgen(h,z)
 
-$IF "%demand_response%" == ON + var_ev_discharge(h,z) - var_ev_charge(h,z)
+$IF "%EV_flex%" == ON + var_ev_discharge(h,z) - var_ev_charge(h,z)
 
 =E= demand(z,h);
 
