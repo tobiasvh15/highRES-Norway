@@ -148,7 +148,7 @@ Parameter par_vehicles(z)/
 $include test-data\vehicles_zones.tsv
 /;
 
-Parameter par_driving_demand(h) 'electricity used while driving per car'/
+Parameter par_driving_demand(h,z) 'electricity used while driving per car'/
 $include test-data\demand_driving.tsv
 /;
 
@@ -174,7 +174,7 @@ eq_discharge_limit(h,z)..  var_ev_discharge(h,z) =L= par_vehicles(z)*s_discharge
 eq_charge_limit(h,z)..  var_ev_charge(h,z) =L= par_vehicles(z)*s_charge_cap*par_connected_vehicles(h);
 
 *TODO add efficiencies
-eq_energy_stored(h,z).. var_ev_energy_stored(h,z) =E= var_ev_energy_stored(h-1,z) + var_ev_charge(h,z) - var_ev_discharge(h,z) - par_vehicles(z)*par_driving_demand(h);
+eq_energy_stored(h,z).. var_ev_energy_stored(h,z) =E= var_ev_energy_stored(h-1,z) + var_ev_charge(h,z) - var_ev_discharge(h,z) - par_vehicles(z)*par_driving_demand(h,z);
 
 eq_total_stored_energy_limit(h,z).. var_ev_energy_stored(h,z) =L= s_store_cap*par_vehicles(z);
 
