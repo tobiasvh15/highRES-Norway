@@ -138,7 +138,7 @@ emis_price
 $ifThen "%EV_flex%" == ON
 
 Scalars
-$include ev_data/ev_scalars.tsv
+$include %datafolderpath%/ev_data/ev_scalars.tsv
 ;
 
 s_store_cap = s_store_cap/MWtoGW;
@@ -146,17 +146,17 @@ s_discharge_cap = s_discharge_cap/MWtoGW;
 s_charge_cap = s_charge_cap/MWtoGW;
 
 Parameter par_vehicles(z) "number of vehicles per zone" /
-$include ev_data\vehicles_zones.tsv
+$include %datafolderpath%/ev_data\vehicles_zones.tsv
 /;
 
 Parameter par_driving_demand(h,z) "electricity used while driving per car [MWh]" /
-$include ev_data\demand_driving.tsv
+$include %datafolderpath%/ev_data\demand_driving.tsv
 /;
 
 par_driving_demand(h,z) = par_driving_demand(h,z)/MWtoGW;
 
 Parameter par_connected_vehicles(h) "fraction of cars connected to the grid"  /
-$include ev_data\connected_vehicles.tsv
+$include %datafolderpath%/ev_data\connected_vehicles.tsv
 /;
 
 Positive Variables
@@ -184,11 +184,11 @@ eq_charge_limit(h,z)..  var_ev_charge(h,z) =L= par_vehicles(z)*s_charge_cap*par_
 $else
 
 Parameter par_vehicles(z) "number of vehicles per zone" /
-$include ev_data\vehicles_zones.tsv
+$include %datafolderpath%/ev_data/vehicles_zones.tsv
 /;
 
 Parameter par_ev_charging(h) "demand for EV charging per vehicle" /
-$include ev_data\demand_ev_charging_MWh.tsv
+$include %datafolderpath%/ev_data/demand_ev_charging_MWh.tsv
 /;
 
 par_ev_charging(h) = par_ev_charging(h)/MWtoGW;
