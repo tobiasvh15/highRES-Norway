@@ -47,7 +47,7 @@ $offdigit
 * hydro_res_min = minimum reservoir level
 * transmission_fom_percent = assume 2% fom costs for transmission
 
-$setglobal datafolderpath "."
+$setglobal datafolderpath "input_data"
 * $setglobal codefolderpath "4_model_code_shared"
 
 $setglobal log "test_log"
