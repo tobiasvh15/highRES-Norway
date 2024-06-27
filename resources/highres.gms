@@ -329,6 +329,10 @@ $else
 
 var_trans_pcap.UP(z,z_alias,trans)$(trans_links(z,z_alias,trans))=50.;
 
+* set lower capacity equal to current
+
+var_trans_pcap.LO(z,z_alias,trans)$(trans_links(z,z_alias,trans)) = trans_links_cap(z,z_alias,trans);
+
 $endIf
 
 
