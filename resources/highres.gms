@@ -579,7 +579,7 @@ $ifThen "%EV%" == ON
 
 + var_ev_discharge(h,z)
 - var_ev_charge(h,z)
-- (par_ev_charging(h)*par_vehicles(z)*(1-s_EV_flex))/s_charge_discharge_eff
+- (par_ev_charging(h)*par_vehicles(z)*(1-s_EV_flex))/s_charge_eff
 
 $endIf
 
