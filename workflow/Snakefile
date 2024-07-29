@@ -475,6 +475,7 @@ rule run_model:
         sharedcodepath=abs_shared_code_path,
         hydroresmin=config["inputs"]["hydro_res_min"],
         transmission_fom_percent=config["inputs"]["transmission_fom_percent"],
+        total_imports=config["inputs"]["total_imports"],
     # retries: 3
     log:
         str(modelpath) + "/highres.lst",

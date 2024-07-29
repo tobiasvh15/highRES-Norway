@@ -15,4 +15,5 @@ logOption=2 gdxCompress=1 \
 --codefolderpath "${snakemake_params[sharedcodepath]}" \
 --co2intensity "${snakemake_params[co2intensity]}" \
 --hydro_res_min "${snakemake_params[hydroresmin]}" \
---transmission_fom_percent "${snakemake_params[transmission_fom_percent]}"
+--transmission_fom_percent "${snakemake_params[transmission_fom_percent]}" \
+--total_imports "${snakemake_params[total_imports]}"

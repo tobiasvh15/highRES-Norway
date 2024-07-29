@@ -288,6 +288,7 @@ var_exist_pcap_z(z,g)                    existing generation capacity at zonal l
 var_tot_pcap(g)                          total generation capacity at national level
 var_tot_pcap_z(z,g)                      total generation capacity at zonal level
 var_gen(h,z,g)                           generation by hour and technology
+var_tot_gen(g)                           Total generation for each technology
 var_new_vre_pcap_r(z,vre,r)              new VRE capacity at grid cell level by technology and zone
 var_exist_vre_pcap_r(z,vre,r)            existing VRE capacity at grid cell level by technology and zone
 var_vre_gen_r(h,z,vre,r)                 VRE generation at grid cell level by hour zone and technology
@@ -451,6 +452,8 @@ eq_exist_pcap
 eq_tot_pcap
 eq_tot_pcap_z
 
+eq_tot_gen
+
 eq_gen_max
 eq_gen_min
 eq_ramp_up
@@ -574,6 +577,10 @@ eq_exist_pcap(g) .. sum(gen_lim(z,g),var_exist_pcap_z(z,g)) =E= var_exist_pcap(g
 eq_tot_pcap_z(z,g) .. var_new_pcap_z(z,g) + var_exist_pcap_z(z,g) =E= var_tot_pcap_z(z,g);
 
 eq_tot_pcap(g) .. sum(z,var_tot_pcap_z(z,g)) =E= var_tot_pcap(g);
+
+
+eq_tot_gen(g) .. var_tot_gen(g) =E= sum((h,z), var_gen(h,z,g));
+var_tot_gen.UP("Import") = %total_imports%;
 
 *********************
 *** VRE equations ***
