@@ -3,7 +3,6 @@ import datetime
 import pathlib
 
 import pandas as pd
-
 from data2dd_funcs import euro_demand2dd, scen2dd, temporal2dd, trans_links
 
 root = pathlib.Path(snakemake.output[0]).parent
@@ -80,9 +79,7 @@ for psys in pscens:
     zones = pd.read_csv(
         # data_root/"zonal_def"/"zones.csv"
         snakemake.input[0]
-    ).loc[
-        :, "zone"
-    ]  # .values
+    ).loc[:, "zone"]  # .values
 
     scen2dd(
         snakemake.output[1],
