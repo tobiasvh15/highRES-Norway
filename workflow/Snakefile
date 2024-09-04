@@ -36,8 +36,6 @@ spatials = scenarios.spatials.to_list()
 # in grams per kWh
 co2target = round(0, 1)
 
-gamsfilesha256 = "f0fae4899977927456100fc83d15f28e29694ca56202029f7d824ec861c86123"
-
 CORRECTOR_YEAR = 2019
 num_near_wind_parks = 10
 num_parallel_processes = 64
@@ -76,10 +74,8 @@ logpath = yearonlypart + scenariopart
 
 localrules:
     all,
-    build_gams,
     build_cplex_opt,
     build_technoeconomic_inputs,
-    ensure_gams_template,
     rename_demand_file,
     build_regions_file,
     build_zones_file,
@@ -122,29 +118,6 @@ rule extract_wind_cap2area:
         "envs/build_windcap2area.yml"
     script:
         "scripts/build_windcap2area.py"
-
-
-rule ensure_gams_template:
-    input:
-        "resources/highres.gms",
-    output:
-        gamsfile=ensure(resultspath / "highres.gms", sha256=gamsfilesha256),
-    run:
-        import shutil
-
-        shutil.copy2(input[0], output[0])
-
-
-rule build_gams:
-    input:
-        rules.ensure_gams_template.output.gamsfile,
-    params:
-        co2intensity=co2target,
-        sharedcodepath=abs_shared_code_path,
-    output:
-        modelpath / "highres.gms",
-    script:
-        "scripts/build_gams.py"
 
 
 rule build_cplex_opt:
@@ -450,7 +423,7 @@ rule compress_vre_gdx:
 
 rule build_inputs:
     input:
-        modelpath / "highres.gms",
+        "resources/highres.gms",
         modelpath / "cplex.opt",
         abs_shared_code_path + "highres_data_input.gms",
         abs_shared_code_path + "highres_hydro.gms",
@@ -476,7 +449,6 @@ rule build_inputs:
 
 rule run_model:
     input:
-        modelpath / "highres.gms",
         modelpath / "cplex.opt",
         abs_shared_code_path + "highres_data_input.gms",
         abs_shared_code_path + "highres_hydro.gms",
@@ -486,9 +458,12 @@ rule run_model:
         abs_shared_code_path + "highres_uc_setup.gms",
         modelpath / "inputs.finished",
         modelpath / "vre_{year}_.gdx",
+        gamsfile=workflow.source_path("../resources/highres.gms"),
     params:
         gamspath=gamspath,
         modelpath=str(modelpath),
+        co2intensity=co2target,
+        sharedcodepath=abs_shared_code_path,
     # retries: 3
     log:
         str(modelpath) + "/highres.lst",
