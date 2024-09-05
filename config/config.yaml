@@ -1,3 +1,5 @@
+# Project: NUANCE
+
 # snakemake --resources mem_mb=700000 --slurm --default-resources \
 # slurm_account=ec85 runtime=4320 mem_mb_per_cpu=21000 cpus_per_task=4 \
 # --use-conda --cluster-cancel scancel --keep-going -j unlimited
@@ -7,13 +9,14 @@
 # slurm_account=ec85 runtime=30 mem_mb_per_cpu=1100 cpus_per_task=4 \
 # --use-conda --cluster-cancel scancel --keep-going -j unlimited
 target: "results.db.compressed"
+#target: "inputs.finished"
 
 paths:
   gams: /fp/projects01/ec85/.bin/gams/gams41.5_linux_x64_64_sfx/
-  shared_input: /fp/projects01/ec85/models/max/special_issue/shared_input/
-  abs_shared_code: /fp/projects01/ec85/models/group/joint_wind/highRES-model/resources/4_model_code_shared/
+  shared_input: /fp/projects01/ec85/shared_input/
+  abs_shared_code: /fp/projects01/ec85/models/tobias/highRES-model/resources/4_model_code_shared/
   abs_con: /cluster/work/projects/ec85/joint-wind/koenandaleksera5/
-  resultsdir: /cluster/work/projects/ec85/nuance/results/
+  resultsdir: /cluster/work/projects/ec85/tobias/NUANCE-results/
 
 inputs:
   year: "2010"
@@ -24,6 +27,8 @@ inputs:
   hydro_res_min: 0.2
   transmission_fom_percent: 0.02
   EV: "ON"
-  EV_flex: "100"
-  V2G: "ON"
   total_imports: 0
+
+scenarios:
+  EV_flex: ["0","5","10","15","20","25","30","35","40","45","50","55","60","65","70","75","80","85","90","95","100"]
+  V2G: ["ON","OFF"]

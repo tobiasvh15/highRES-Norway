@@ -10,9 +10,15 @@ inputyears = [config["inputs"]["year"]]
 
 spatials = [config["inputs"]["spatial_res"]]
 
-cutoff_values = {"solar": config["inputs"]["cutoff_solar"], "offwind": config["inputs"]["cutoff_offwind"]}
+participations = config["scenarios"]["EV_flex"]
+V2Gs = config["scenarios"]["V2G"]
 
-cutoffs_wind = [config["inputs"]["cutoff_onwind"]]
+cutoff_values = {
+    "solar": config["inputs"]["cutoff_solar"],
+    "offwind": config["inputs"]["cutoff_offwind"],
+}
+
+cutoffs_wind = config["inputs"]["cutoff_onwind"]
 
 scenarios = pd.DataFrame(index=[0])
 
@@ -27,11 +33,23 @@ for spatial in spatials:
     concatlist.append(scenarios.assign(spatials=spatial))
 scenarios = pd.concat(concatlist).reset_index(drop=True)
 
+concatlist = []
+for participation in participations:
+    concatlist.append(scenarios.assign(participations=participation))
+scenarios = pd.concat(concatlist).reset_index(drop=True)
+
+concatlist = []
+for V2G in V2Gs:
+    concatlist.append(scenarios.assign(V2Gs=V2G))
+scenarios = pd.concat(concatlist).reset_index(drop=True)
+
 # droplist = [6,7,2,0,28]
 # scenarios = scenarios.drop(droplist,axis=0)
 
 years = scenarios.years.to_list()
 spatials = scenarios.spatials.to_list()
+participations = scenarios.participations.to_list()
+V2Gs = scenarios.V2Gs.to_list()
 
 # in grams per kWh
 co2target = round(0, 1)
@@ -65,7 +83,7 @@ scenarios.to_csv(resultspath / "scenarios.csv", sep="\t")
 
 # Relative path to the built model and built inputs
 yearonlypart = "models/{year}/"
-scenariopart = "{spatial}/"
+scenariopart = "{spatial}_{participation}_{V2G}/"
 modelpathyearonly = resultspath / yearonlypart
 modelpath = modelpathyearonly / scenariopart
 allyearpath = resultspath / "models/allyears/"
@@ -105,6 +123,8 @@ rule all:
             zip,
             year=years,
             spatial=spatials,
+            participation=participations,
+            V2G=V2Gs,
         ),
 
 
@@ -328,6 +348,7 @@ rule build_pv_below:
         cf_exclusion_solar=temp(modelpath / "cf_exclusion_solar_blw.tif"),
         areassolar=temp(modelpath / "areas_norway_grid_solar_blw.csv"),
         capfacfile=temp(modelpath / "capacity-factors_solar_blw.csv"),
+        indreg=temp(modelpath / "indices_region_bel.csv"),
     conda:
         "envs/sarah.yml"
     log:
@@ -537,9 +558,7 @@ rule run_model:
         modelpath=str(modelpath),
         co2intensity=co2target,
         sharedcodepath=abs_shared_code_path,
-        EV = config["inputs"]["EV"],
-        EV_flex = config["inputs"]["EV_flex"],
-        V2G = config["inputs"]["V2G"],
+        EV=config["inputs"]["EV"],
         hydroresmin=config["inputs"]["hydro_res_min"],
         transmission_fom_percent=config["inputs"]["transmission_fom_percent"],
         total_imports=config["inputs"]["total_imports"],

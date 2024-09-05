@@ -48,7 +48,7 @@ $offdigit
 * hydro_res_min = minimum reservoir level
 * transmission_fom_percent = assume 2% fom costs for transmission
 
-$setglobal datafolderpath "input_data"
+$setglobal datafolderpath "."
 * $setglobal codefolderpath "4_model_code_shared"
 
 $setglobal log "test_log"
@@ -79,7 +79,7 @@ $setglobal model_yr "2050"
 $setglobal fx_trans "NO"
 $setglobal fx_natcap "NO"
 
-$set pen_gen "ON"
+$set pen_gen "OFF"
 
 $setglobal fx_caps_to ""
 
@@ -143,7 +143,7 @@ emis_price
 /0./
 ;
 
-$IF "%EV%" == ON $INCLUDE highres_ev.gms
+$IF "%EV%" == ON $INCLUDE %codefolderpath%/highres_ev.gms
 
 
 demand(z,h)=demand(z,h)/MWtoGW;
