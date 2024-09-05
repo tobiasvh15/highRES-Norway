@@ -130,6 +130,26 @@ rule build_cplex_opt:
 
         shutil.copy2(input[0], output[0])
 
+rule copy_ev_data:
+    input:
+        "resources/ev_data/connected_vehicles.tsv",
+        "resources/ev_data/demand_driving_MWh.tsv",
+        "resources/ev_data/demand_ev_charging_MWh.tsv",
+        "resources/ev_data/ev_scalars.tsv",
+        "resources/ev_data/vehicles_zones.tsv",
+    output:
+        modelpath / "ev_data" / "connected_vehicles.tsv",
+        modelpath / "ev_data" /  "demand_driving_MWh.tsv",
+        modelpath / "ev_data" /  "demand_ev_charging_MWh.tsv",
+        modelpath / "ev_data" /  "ev_scalars.tsv",
+        modelpath / "ev_data" /  "vehicles_zones.tsv"
+    run:
+        import shutil
+        i = 0
+        for file in input:
+            shutil.copy2(input[i], output[i])
+            i += 1
+
 
 rule build_zones_file:
     input:
@@ -452,6 +472,11 @@ rule build_inputs:
         modelpath / "BASE_gen.dd",
         modelpath / "BASE_store.dd",
         modelpath / "trans.dd",
+        modelpath / "ev_data" / "connected_vehicles.tsv",
+        modelpath / "ev_data" /  "demand_driving_MWh.tsv",
+        modelpath / "ev_data" /  "demand_ev_charging_MWh.tsv",
+        modelpath / "ev_data" /  "ev_scalars.tsv",
+        modelpath / "ev_data" /  "vehicles_zones.tsv"
     output:
         touch(modelpath / "inputs.finished"),
 
