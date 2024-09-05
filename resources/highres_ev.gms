@@ -52,12 +52,41 @@ Equations
     eq_ev_total_demand
 ;
 
-eq_energy_stored(h,z).. var_ev_energy_stored(h,z) =E= var_ev_energy_stored(h-1,z) + var_ev_charge(h,z)*s_charge_discharge_eff - var_ev_discharge(h,z)/s_charge_discharge_eff - par_vehicles(z)*s_EV_flex*par_driving_demand(h,z);
+* for explenation of h--1 see https://www.gams.com/46/docs/UG_OrderedSets.html#UG_OrderedSets_LagLeadOperators
+eq_energy_stored(h,z).. 
+    var_ev_energy_stored(h,z) =E= 
 
-eq_total_stored_energy_limit(h,z).. var_ev_energy_stored(h,z) =L= s_store_cap*par_vehicles(z)*s_EV_flex;
+    var_ev_energy_stored(h--1,z) + var_ev_charge(h,z) * s_charge_discharge_eff 
 
-eq_discharge_limit(h,z)..  var_ev_discharge(h,z) =L= par_vehicles(z)*s_EV_flex*s_discharge_cap*par_connected_vehicles(h);
+    - var_ev_discharge(h,z)/s_charge_discharge_eff 
 
-eq_charge_limit(h,z)..  var_ev_charge(h,z) =L= par_vehicles(z)*s_EV_flex*s_charge_cap*par_connected_vehicles(h);
+    - par_vehicles(z) * s_EV_flex * par_driving_demand(h,z);
 
-eq_ev_total_demand.. var_ev_total_demand =E= sum((h,z), var_ev_charge(h,z) - var_ev_discharge(h,z)/(s_charge_discharge_eff**2) + ((par_ev_charging(h)*par_vehicles(z)*(1-s_EV_flex))/s_charge_discharge_eff));
+
+eq_total_stored_energy_limit(h,z)..
+    var_ev_energy_stored(h,z) =L= 
+
+    s_store_cap*par_vehicles(z)*s_EV_flex;
+
+
+eq_discharge_limit(h,z)..
+    var_ev_discharge(h,z) =L=
+    
+    par_vehicles(z)*s_EV_flex*s_discharge_cap*par_connected_vehicles(h);
+
+
+eq_charge_limit(h,z)..
+    var_ev_charge(h,z) =L=
+    
+    par_vehicles(z)*s_EV_flex*s_charge_cap*par_connected_vehicles(h);
+
+eq_ev_total_demand..
+    var_ev_total_demand =E=
+
+    sum((h,z), var_ev_charge(h,z) - var_ev_discharge(h,z)
+
+    /(s_charge_discharge_eff**2)
+    + (
+        (par_ev_charging(h)*par_vehicles(z)*(1-s_EV_flex))
+        
+        /s_charge_discharge_eff));
