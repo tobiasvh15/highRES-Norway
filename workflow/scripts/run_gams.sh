@@ -6,10 +6,7 @@
 
 cd ${snakemake_params[modelpath]}
 pwd -P
-
-${snakemake_params[gamspath]}gams \
-${snakemake_input[gamsfile]} \
-logOption=2 gdxCompress=1 \
+${snakemake_params[gamspath]}gams ${snakemake_input[gamsfile]} logOption=2 gdxCompress=1 \
 --weather_yr "${snakemake_wildcards[year]}" \
 --dem_yr "${snakemake_wildcards[year]}" \
 --codefolderpath "${snakemake_params[sharedcodepath]}" \

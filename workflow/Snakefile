@@ -150,6 +150,7 @@ rule build_cplex_opt:
 
         shutil.copy2(input[0], output[0])
 
+
 rule copy_ev_data:
     input:
         "resources/ev_data/connected_vehicles.tsv",
@@ -159,12 +160,13 @@ rule copy_ev_data:
         "resources/ev_data/vehicles_zones.tsv",
     output:
         modelpath / "ev_data" / "connected_vehicles.tsv",
-        modelpath / "ev_data" /  "demand_driving_MWh.tsv",
-        modelpath / "ev_data" /  "demand_ev_charging_MWh.tsv",
-        modelpath / "ev_data" /  "ev_scalars.tsv",
-        modelpath / "ev_data" /  "vehicles_zones.tsv"
+        modelpath / "ev_data" / "demand_driving_MWh.tsv",
+        modelpath / "ev_data" / "demand_ev_charging_MWh.tsv",
+        modelpath / "ev_data" / "ev_scalars.tsv",
+        modelpath / "ev_data" / "vehicles_zones.tsv",
     run:
         import shutil
+
         i = 0
         for file in input:
             shutil.copy2(input[i], output[i])
@@ -337,7 +339,7 @@ rule build_pv_below:
         slope=shared_input_path / "geodata/onshore/15degrees.shp.zip",
         euroshape=shared_input_path / "geodata/onshore/shapes/NO-NUTS3.geojson",
         corine=shared_input_path / "geodata/onshore/corine.tif",
-        sarahcutout="/cluster/work/projects/ec85/SARAH/norway-below-65-sarah.nc",
+        sarahcutout=shared_input_path / "weatherdata/SARAH/norway-below-65-sarah3-{year}.nc",
     output:
         # FIXME the files indreg and cf_exclusion_{solar,windon,windoff} are
         # only necessary under some conditions currently when those are not met,
@@ -376,7 +378,7 @@ rule build_hydro_capfac:
         hydroresinfl=temp(modelpathyearonly / "inflow_hydro-res_norway-3_{year}.csv"),
     conda:
         "envs/build_hydro_capfac.yml"
-    #log:
+    # log:
     #    notebook="logs/notebooks/" + logpath + "highRES_norway3_hydro{year}.py.ipynb",
     params:
         sharedinputpath=shared_input_path,
@@ -533,10 +535,10 @@ rule build_inputs:
         modelpath / "BASE_store.dd",
         modelpath / "trans.dd",
         modelpath / "ev_data" / "connected_vehicles.tsv",
-        modelpath / "ev_data" /  "demand_driving_MWh.tsv",
-        modelpath / "ev_data" /  "demand_ev_charging_MWh.tsv",
-        modelpath / "ev_data" /  "ev_scalars.tsv",
-        modelpath / "ev_data" /  "vehicles_zones.tsv"
+        modelpath / "ev_data" / "demand_driving_MWh.tsv",
+        modelpath / "ev_data" / "demand_ev_charging_MWh.tsv",
+        modelpath / "ev_data" / "ev_scalars.tsv",
+        modelpath / "ev_data" / "vehicles_zones.tsv",
     output:
         touch(modelpath / "inputs.finished"),
 

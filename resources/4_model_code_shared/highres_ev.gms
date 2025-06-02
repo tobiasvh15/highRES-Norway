@@ -31,7 +31,7 @@ $include %datafolderpath%/ev_data/demand_driving_MWh.tsv
 par_driving_demand(h,z) = par_driving_demand(h,z)/MWtoGW;
 
 Parameter par_connected_vehicles(h) "fraction of cars connected to the grid"  /
-$include %datafolderpath%/ev_data\connected_vehicles.tsv
+$include %datafolderpath%/ev_data/connected_vehicles.tsv
 /;
 
 Positive Variables
@@ -52,7 +52,6 @@ Equations
     eq_ev_total_demand
 ;
 
-* for explenation of h--1 see https://www.gams.com/46/docs/UG_OrderedSets.html#UG_OrderedSets_LagLeadOperators
 eq_energy_stored(h,z).. 
     var_ev_energy_stored(h,z) =E= 
 
@@ -79,6 +78,7 @@ eq_charge_limit(h,z)..
     var_ev_charge(h,z) =L=
     
     par_vehicles(z)*s_EV_flex*s_charge_cap*par_connected_vehicles(h);
+
 
 eq_ev_total_demand..
     var_ev_total_demand =E=

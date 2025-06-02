@@ -118,7 +118,7 @@ var_tot_store_ecap_z.FX(z,s)$(store_lim_ecap_z(z,s,'FX'))=store_lim_ecap_z(z,s,'
 
 
 set s_lim(z,s);
-*s_lim(z,s) = YES;
+* s_lim(z,s) = YES;
 
 * only create equations for zones/techs with capacity limits/existing capacity > 0
 * TO CHECK -> since new cap + exist cap <= limit I think we only need limit to be included here
