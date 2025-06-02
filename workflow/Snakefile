@@ -267,9 +267,7 @@ rule build_weather:
         corine=shared_input_path / "geodata/onshore/corine.tif",
         cap2area=ancient("resources/windcap2area"),
         wind_parks="resources/bias/nve_wind_parks.geojson",
-        pvlow=scenario_exclusions_path + "PV_Low_Exc.zip",
         windlow=scenario_exclusions_path + "co.geotiff",
-        tech=scenario_exclusions_path + "Techn_All_Exc.zip",
         changedbiaswind=rules.bias_correct_wind.output.corrected_for_highres,
     output:
         # FIXME the files indreg and cf_exclusion_{solar,windon,windoff} are
@@ -284,7 +282,7 @@ rule build_weather:
             modelpath / "cf_exclusion_windoff_floating.tif"
         ),
         indreg=temp(modelpath / "indices_region.csv"),
-        areassolar=temp(modelpath / "areas_norway_grid_solar.csv"),
+        areassolar=temp(modelpath / "areas_norway_grid_solar_abv.csv"),
         areaswindonshore=temp(modelpath / "areas_norway_grid_wind_onshore.csv"),
         areaswindoffshore=temp(modelpath / "areas_norway_grid_wind_offshore.csv"),
         areaswindoffshorefloating=temp(
@@ -308,6 +306,43 @@ rule build_weather:
         "notebooks/highRES-Norway_grid.py.ipynb"
 
 
+rule build_pv_below:
+    input:
+        WDPA1a=shared_input_path / "geodata/onshore/WDPA_Ia_100.tiff",
+        WDPA1b=shared_input_path / "geodata/onshore/WDPA_Ib_100.tiff",
+        WDPA2=shared_input_path / "geodata/onshore/WDPA_II_100.tiff",
+        WDPA3=shared_input_path / "geodata/onshore/WDPA_III_100.tiff",
+        WDPA4=shared_input_path / "geodata/onshore/WDPA_IV_100.tiff",
+        elevation=shared_input_path / "geodata/onshore/2000m.shp.zip",
+        slope=shared_input_path / "geodata/onshore/15degrees.shp.zip",
+        euroshape=shared_input_path / "geodata/onshore/shapes/NO-NUTS3.geojson",
+        corine=shared_input_path / "geodata/onshore/corine.tif",
+        sarahcutout="/cluster/work/projects/ec85/SARAH/norway-below-65-sarah.nc",
+    output:
+        # FIXME the files indreg and cf_exclusion_{solar,windon,windoff} are
+        # only necessary under some conditions currently when those are not met,
+        # we create an empty file
+        # the cleaner solution might be to outsource the creation of that file
+        # to an extra rule and have an input function conditional on the
+        # wildcard spatial for that rule
+        cf_exclusion_solar=temp(modelpath / "cf_exclusion_solar_blw.tif"),
+        areassolar=temp(modelpath / "areas_norway_grid_solar_blw.csv"),
+        capfacfile=temp(modelpath / "capacity-factors_solar_blw.csv"),
+    conda:
+        "envs/sarah.yml"
+    log:
+        notebook="logs/notebooks/" + logpath + "SARAH.py.ipynb",
+    resources:
+        mem_mb=50000,  # TODO: Find out how much this rule needs,
+        # should be constant (regional/grid)
+        nodes=12,
+    params:
+        sharedinputpath=shared_input_path,
+        cutoffs=cutoff_values,
+    notebook:
+        "notebooks/SARAH.py.ipynb"
+
+
 rule build_hydro_capfac:
     input:
         eiahydrogen="resources/EIA_hydro_generation_1995_2000_2014.csv",
@@ -320,6 +355,8 @@ rule build_hydro_capfac:
         hydroresinfl=temp(modelpathyearonly / "inflow_hydro-res_norway-3_{year}.csv"),
     conda:
         "envs/build_hydro_capfac.yml"
+    #log:
+    #    notebook="logs/notebooks/" + logpath + "highRES_norway3_hydro{year}.py.ipynb",
     params:
         sharedinputpath=shared_input_path,
     notebook:
@@ -348,6 +385,7 @@ rule build_vre_areas_file:
     input:
         areashydro=rules.build_hydro_areas.output.areashydro,
         areassolar=rules.build_weather.output.areassolar,
+        areassolarblw=rules.build_pv_below.output.areassolar,
         areaswindon=rules.build_weather.output.areaswindonshore,
         areaswindoff=rules.build_weather.output.areaswindoffshore,
         areaswindofffloating=rules.build_weather.output.areaswindoffshorefloating,
@@ -395,13 +433,14 @@ rule link_hydrores_inflow:
 rule build_vre_file:
     input:
         cfwsng=rules.build_weather.output.capfacfile,
+        cfsblw=rules.build_pv_below.output.capfacfile,
         cfhn3=rules.build_hydro_capfac.output.hydrororcapfac,
         changedbiaswindcsv=rules.build_weather.output.changedbiaswindcsv,
     output:
         vrefile=temp(modelpath / "vre_{year}_.csv"),
     shell:
         (
-            "cat {input[cfwsng]} {input[changedbiaswindcsv]} {input[cfhn3]} | sed 's/bottom//'"
+            "cat {input[cfwsng]} {input[cfsblw]} {input[changedbiaswindcsv]} {input[cfhn3]} | sed 's/bottom//'"
             " > {output[vrefile]}"
         )
 

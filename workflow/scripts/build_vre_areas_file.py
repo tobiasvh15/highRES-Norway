@@ -6,6 +6,7 @@ with open(snakemake.output.unsorted, "wb") as wfd:
     for f in [
         snakemake.input["areashydro"],
         snakemake.input["areassolar"],
+        snakemake.input["areassolarblw"],
         snakemake.input["areaswindon"],
         snakemake.input["areaswindoff"],
         snakemake.input["areaswindofffloating"],

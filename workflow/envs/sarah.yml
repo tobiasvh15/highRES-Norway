@@ -1,0 +1,16 @@
+name: sarah
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - jupyter
+  - jupyterlab_code_formatter
+  - black
+  - isort
+  - rioxarray
+  - pyarrow
+  - fastparquet
+  - netCDF4
+  - xarray # <=2023.8.0
+  - ruff
+  - atlite
